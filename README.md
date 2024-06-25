@@ -45,10 +45,14 @@
 }
 ```
 
-응답 실패 `**401**`
+응답 실패 `**400 Bad Request**`
 
 ```json
-로그인 실패
+{
+    "message": "회원 정보가 없습니다.",
+    "error": "Bad Request",
+    "statusCode": 400
+}
 ```
 
 ### /mypage `GET`
@@ -64,13 +68,12 @@ headers.Authorization 필수
 }
 ```
 
-응답 실패 `**401**`
+응답 실패 `**401 Unauthotized**`
 
 ```json
 //JWT가 유효하지 않은 경우
 {
-    "message": "유효하지 않은 refresh token입니다.",
-    "error": "Unauthorized",
+    "message": "Unauthorized",
     "statusCode": 401
 }
 ```
@@ -96,7 +99,7 @@ headers.Authorization 필수
 }
 ```
 
-응답 실패 `**401**`
+응답 실패 `**401 Unauthorized**`
 
 ```json
 {
