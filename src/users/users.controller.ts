@@ -1,15 +1,17 @@
-import { Controller, Get, Post, Body, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, UnauthorizedException, Headers} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserRequest } from './dto/create-user.request';
-import { User } from './entities/user.entity';
+import { JwtService } from '@nestjs/jwt';
 import { LoginRequest } from './dto/login.request';
 import { RefreshRequest } from './dto/refresh.request';
 import { AuthGuard } from '@nestjs/passport';
-import { Request } from 'express';
 
 @Controller('')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService
+  ) {}
 
   @Post("signup")
   register(@Body() CreateUserRequest: CreateUserRequest) {
@@ -18,8 +20,24 @@ export class UsersController {
 
   @Get('mypage')
   @UseGuards(AuthGuard('jwt'))
-  findOne(@Body() User: User) {
-    return this.usersService.findOne(User.id);
+  async findOne(@Headers('authorization') authHeader: string) {
+    if (!authHeader) {
+      throw new UnauthorizedException('Authorization header not found');
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      throw new UnauthorizedException('Token not found');
+    }
+
+    try {
+      const decoded = this.jwtService.verify(token);
+      const userId = decoded.id;
+
+      return await this.usersService.findOne(userId);
+    } catch (err) {
+      throw new UnauthorizedException('Invalid token');
+    }
   }
 
   @Post("login")

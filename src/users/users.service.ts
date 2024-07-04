@@ -43,7 +43,8 @@ export class UsersService {
     let userFind = await this.findByFields({
       where: { id: LoginRequest.id }
     });
-    const validatepw = await bcrypt.compare(LoginRequest.pw, userFind.pw);
+    const validatepw = LoginRequest.pw === userFind.pw;
+    console.log(userFind, validatepw);
     if(!userFind || !validatepw) {
         throw new BadRequestException("회원 정보가 없습니다.");
     }
